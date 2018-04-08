@@ -1,16 +1,27 @@
 from utils import randomPlace
 from texttable import Texttable
 
+BREEZE = "BREEZE"
+
 
 class Game:
     def __init__(self, size):
         self._size = size
+        # WUMPUS
         self._nWumpus = 1
+        self._wumpus = []
+        # PITS
         self._nPits = self._size - 2
+        self._pits = []
+        # GOLD
         self._nGold = 1
-        self._board = self.initializeBoard()
+        self._gold = []
+        # PLAYER
         self._player = [self._size - 1, 0]
+
+        self._board = self.initializeBoard()
         self.placeInBoard(self._player[0], self._player[1], "PLAYER")
+
         self.generateWorld()
 
     def placeInBoard(self, lin, col, content):
@@ -30,44 +41,52 @@ class Game:
         t.add_rows(row)
         print(t.draw())
 
-    def placeWumpus(self, lin, col):
-        self.placeInBoard(lin, col, "WUMPUS")
+    def checkPosition(self, lin, col, content):
+        return content in self._board[lin][col]
 
-        # CHECK TOP
-        if((lin - 1) >= 0):
-            self.placeInBoard((lin - 1), col, "ODOR")
+    def isEmpty(self, lin, col):
+        return len(self._board[lin][col]) == 0
 
-        # CHECK RIGHT
-        if((col + 1) < self._size):
-            self.placeInBoard(lin, col + 1, "ODOR")
+    def placePit(self, lin, col):
+        self.placeInBoard(lin, col, "PIT")
+        self._pits.append([lin, col])
 
-        # CHECK BOTTOM
-        if((lin + 1) < self._size):
-            self.placeInBoard((lin + 1), col, "ODOR")
-        # CHECK LEFT
-        if((col - 1) >= 0):
-            self.placeInBoard(lin, col - 1, "ODOR")
-        
-        
+    def putBreezes(self):
+        for pit in self._pits:
+            pLin = pit[0]
+            pCol = pit[1]
+            # TOP
+            if(pLin - 1 >= 0):
+                top = [pLin - 1, pCol]
+                if(top not in self._pits):
+                    if(not(self.checkPosition(pLin - 1, pCol, BREEZE))):
+                        self.placeInBoard(pLin - 1, pCol, BREEZE)
+            # BOTTOM
+            if(pLin + 1 < self._size):
+                bottom = [pLin + 1, pCol]
+                if(bottom not in self._pits):
+                    if(not(self.checkPosition(pLin + 1, pCol, BREEZE))):
+                        self.placeInBoard(pLin + 1, pCol, BREEZE)
+            # RIGHT
+            if(pCol + 1 < self._size):
+                right = [pLin, pCol + 1]
+                if(right not in self._pits):
+                    if(not(self.checkPosition(pLin, pCol + 1, BREEZE))):
+                        self.placeInBoard(pLin, pCol + 1, BREEZE)
+            # LEFT
+            if(pCol - 1 < self._size):
+                left = [pLin, pCol - 1]
+                if(left not in self._pits):
+                    if(not(self.checkPosition(pLin, pCol - 1, BREEZE))):
+                        self.placeInBoard(pLin, pCol - 1, BREEZE)
 
     def generateWorld(self):
-        # GENERATE GOLD
-        while(True):
-            goldRandomPosition = randomPlace(self._size)
-            if(not(goldRandomPosition == self._player)):
-                self.placeInBoard(
-                    goldRandomPosition[0], goldRandomPosition[1], "GOLD")
-                break
+        # GENERATE PITS AND BREEZES
+        for i in range(self._nPits):
+            while(True):
+                pitRandomPosition = randomPlace(self._size)
 
-        # GENERATE WUMPUS
-        while(True):
-            wumpusRandomPosition = randomPlace(self._size)
-            if(not(self._board[wumpusRandomPosition[0]][wumpusRandomPosition[1]] == None and goldRandomPosition == self._player)):
-                # self.placeInBoard(
-                #     wumpusRandomPosition[0], wumpusRandomPosition[1], "WUMPUS")
-                self.placeWumpus(
-                    wumpusRandomPosition[0], wumpusRandomPosition[1])
-
-                break
-
-                # TODO GENERATE PITS AND BREEZES
+                if(not(pitRandomPosition == self._player) and (pitRandomPosition not in self._pits)):
+                    self.placePit(pitRandomPosition[0], pitRandomPosition[1])
+                    break
+            self.putBreezes()
