@@ -47,9 +47,9 @@ class Game:
     def isEmpty(self, lin, col):
         return len(self._board[lin][col]) == 0
 
-    def placePit(self, lin, col):
-        self.placeInBoard(lin, col, "PIT")
-        self._pits.append([lin, col])
+    def placePit(self, pos):
+        self.placeInBoard(pos[0], pos[1], "PIT")
+        self._pits.append(pos)
 
     def putBreezes(self):
         for pit in self._pits:
@@ -64,6 +64,7 @@ class Game:
             # BOTTOM
             if(pLin + 1 < self._size):
                 bottom = [pLin + 1, pCol]
+
                 if(bottom not in self._pits):
                     if(not(self.checkPosition(pLin + 1, pCol, BREEZE))):
                         self.placeInBoard(pLin + 1, pCol, BREEZE)
@@ -87,6 +88,7 @@ class Game:
                 pitRandomPosition = randomPlace(self._size)
 
                 if(not(pitRandomPosition == self._player) and (pitRandomPosition not in self._pits)):
-                    self.placePit(pitRandomPosition[0], pitRandomPosition[1])
+                    self.placePit(pitRandomPosition)
                     break
-            self.putBreezes()
+        self.putBreezes()
+        print(self._pits)
