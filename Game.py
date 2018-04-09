@@ -1,6 +1,8 @@
 from utils import randomPlace
 from texttable import Texttable
 
+PIT = "PIT"
+PLAYER = "PLAYER"
 BREEZE = "BREEZE"
 STENCH = "STENCH"
 WUMPUS = "WUMPUS"
@@ -22,7 +24,7 @@ class Game:
         self._player = [self._size - 1, 0]
 
         self._board = self.initializeBoard()
-        self.placeInBoard(self._player[0], self._player[1], "PLAYER")
+        self.placeInBoard(self._player[0], self._player[1], PLAYER)
 
         self.generateWorld()
 
@@ -50,7 +52,7 @@ class Game:
         return len(self._board[lin][col]) == 0
 
     def placePit(self, pos):
-        self.placeInBoard(pos[0], pos[1], "PIT")
+        self.placeInBoard(pos[0], pos[1], PIT)
         self._pits.append(pos)
 
     def putBreezes(self):
