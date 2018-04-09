@@ -2,6 +2,8 @@ from utils import randomPlace
 from texttable import Texttable
 
 BREEZE = "BREEZE"
+STENCH = "STENCH"
+WUMPUS = "WUMPUS"
 
 
 class Game:
@@ -81,6 +83,37 @@ class Game:
                     if(not(self.checkPosition(pLin, pCol - 1, BREEZE))):
                         self.placeInBoard(pLin, pCol - 1, BREEZE)
 
+    def placeWumpus(self, pos):
+        self.placeInBoard(pos[0], pos[1], WUMPUS)
+
+        pLin = pos[0]
+        pCol = pos[1]
+        # TOP
+        if(pLin - 1 >= 0):
+            top = [pLin - 1, pCol]
+            if(top not in self._pits):
+                if(not(self.checkPosition(pLin - 1, pCol, STENCH))):
+                    self.placeInBoard(pLin - 1, pCol, STENCH)
+        # BOTTOM
+        if(pLin + 1 < self._size):
+            bottom = [pLin + 1, pCol]
+
+            if(bottom not in self._pits):
+                if(not(self.checkPosition(pLin + 1, pCol, STENCH))):
+                    self.placeInBoard(pLin + 1, pCol, STENCH)
+        # RIGHT
+        if(pCol + 1 < self._size):
+            right = [pLin, pCol + 1]
+            if(right not in self._pits):
+                if(not(self.checkPosition(pLin, pCol + 1, STENCH))):
+                    self.placeInBoard(pLin, pCol + 1, STENCH)
+        # LEFT
+        if(pCol - 1 < self._size):
+            left = [pLin, pCol - 1]
+            if(left not in self._pits):
+                if(not(self.checkPosition(pLin, pCol - 1, STENCH))):
+                    self.placeInBoard(pLin, pCol - 1, STENCH)
+
     def generateWorld(self):
         # GENERATE PITS AND BREEZES
         for i in range(self._nPits):
@@ -91,4 +124,10 @@ class Game:
                     self.placePit(pitRandomPosition)
                     break
         self.putBreezes()
-        print(self._pits)
+
+        # GENERATE WUMPUS
+        while(True):
+            wumpusRandomPosition = randomPlace(self._size)
+            if(not(wumpusRandomPosition == self._player) and wumpusRandomPosition not in self._pits):
+                self.placeWumpus(wumpusRandomPosition)
+                break
