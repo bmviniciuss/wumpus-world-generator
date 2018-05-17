@@ -2,7 +2,8 @@ from Game import Game
 
 
 def main():
-    game = Game(5)
+    size  = int(input("Board size: "))
+    game = Game(size)
     game.printBoard()
 
 
